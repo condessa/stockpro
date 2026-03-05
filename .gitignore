@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+config.json
+dist/
+*.deb
+publicar_github.sh

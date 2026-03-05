@@ -1,0 +1,9 @@
+sudo mysql stockpro << 'SQL'
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE TABLE movimentos;
+TRUNCATE TABLE produtos;
+TRUNCATE TABLE categorias;
+TRUNCATE TABLE departamentos;
+TRUNCATE TABLE app_utilizadores;
+SET FOREIGN_KEY_CHECKS=1;
+SQL
