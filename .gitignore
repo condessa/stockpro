@@ -3,5 +3,4 @@ __pycache__/
 *.pyo
 config.json
 dist/
-*.deb
 publicar_github.sh
