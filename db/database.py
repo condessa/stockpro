@@ -177,6 +177,9 @@ def util_alterar_password(uid: int, nova: str):
         (_hash(nova), uid)
     )
 
+def util_eliminar(uid: int):
+    _db.run("DELETE FROM app_utilizadores WHERE id=%s", (uid,))
+
 def util_desativar(uid: int):
     _db.run("UPDATE app_utilizadores SET ativo=0 WHERE id=%s", (uid,))
 

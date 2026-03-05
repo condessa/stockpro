@@ -3,7 +3,7 @@ import tkinter as tk
 from datetime import datetime
 import threading
 
-from ui.tema import C, aplicar_estilo, Btn, toast
+from ui.tema import C, aplicar_estilo, Btn, toast, Tooltip
 from ui.dashboard    import Dashboard
 from ui.produtos     import Produtos
 from ui.entradas     import Entradas
@@ -64,7 +64,7 @@ class App(tk.Tk):
         tk.Label(centro, text="StockPro", bg=C["bg"], fg=C["accent"],
                  font=("Consolas", 30, "bold")).pack()
         tk.Label(centro, text="GESTÃO DE STOCKS", bg=C["bg"], fg=C["text3"],
-                 font=("Segoe UI", 10, "bold")).pack(pady=(0, 6))
+                 font=("Segoe UI", 10, "bold")).pack(pady=(0, 12))
         self._lbl_estado = tk.Label(centro, text="A ligar à base de dados…",
                                     bg=C["bg"], fg=C["text2"],
                                     font=("Segoe UI", 10))
@@ -195,7 +195,7 @@ class App(tk.Tk):
         self._add_secao("CONFIG.")
         self._add_nav("Definições",   "definicoes",   "⚙")
         if self._utilizador and self._utilizador.get("role") == "admin":
-            self._add_nav("Utilizadores", "utilizadores", "👥")
+            self._add_nav("Gestão de Utilizadores", "utilizadores", "👥")
 
         self._badge = tk.Label(self._sidebar, text="", bg=C["yellow_bg"], fg=C["yellow"],
                                font=("Segoe UI", 7, "bold"), cursor="hand2", pady=2)
@@ -222,8 +222,18 @@ class App(tk.Tk):
                                   font=("Consolas", 7)); self._lbl_hora.pack(anchor="w")
         tk.Frame(self._rod, bg=C["border"], height=1).pack(fill="x", pady=(6, 4))
         rod_btns = tk.Frame(self._rod, bg=C["bg2"]); rod_btns.pack(fill="x")
-        Btn(rod_btns, "Backup", cmd=self._backup, estilo="neutral", icone="💾").pack(side="left", fill="x", expand=True, padx=(0, 2))
-        Btn(rod_btns, "Sair",   cmd=self._logout, estilo="ghost",   icone="⏻").pack(side="left", fill="x", expand=True)
+        for txt, cmd, tip in [
+            ("💾", self._backup,            "Backup da base de dados"),
+            ("👤", self._trocar_utilizador, "Trocar utilizador"),
+            ("⏻", self._logout,            "Terminar sessão"),
+        ]:
+            b = tk.Button(rod_btns, text=txt, command=cmd,
+                bg=C["bg3"], fg=C["text"],
+                activebackground=C["bg4"], activeforeground=C["text"],
+                relief="flat", bd=0, cursor="hand2",
+                font=("Segoe UI", 11), padx=0, pady=3)
+            b.pack(side="left", fill="x", expand=True, padx=1)
+            Tooltip(b, tip)
 
         self._aplicar_estado(aberta=False)
 
@@ -335,7 +345,7 @@ class App(tk.Tk):
         if aberta: self._logo_frame.pack(side="left")
         else:      self._logo_frame.pack_forget()
         for lbl in self._secao_labels:
-            if aberta: lbl.pack(fill="x", padx=18, pady=(7, 1))
+            if aberta: lbl.pack(fill="x", padx=18, pady=(12, 2))
             else:      lbl.pack_forget()
         for _, (f, li, lt) in self._nav_btns.items():
             if aberta: lt.pack(side="left", fill="x", expand=True)
@@ -370,7 +380,7 @@ class App(tk.Tk):
     def _titulo(self, chave):
         return {"dashboard":"Dashboard","produtos":"Produtos","entradas":"Entradas",
                 "saidas":"Saídas","historico":"Histórico","alertas":"Alertas",
-                "definicoes":"Definições","utilizadores":"Utilizadores"}.get(chave, chave)
+                "definicoes":"Definições","utilizadores":"Gestão de Utilizadores"}.get(chave, chave)
 
     # ── Badge ─────────────────────────────────────────────────────────────────
     def set_badge(self, n):
@@ -380,6 +390,15 @@ class App(tk.Tk):
                 self._badge.pack(fill="x", padx=6, pady=(4, 0))
         else:
             self._badge.pack_forget()
+
+
+    # ── Trocar utilizador ─────────────────────────────────────────────────────
+    def _trocar_utilizador(self):
+        self._a_monitorizar = False
+        self._utilizador    = None
+        self._pagina_atual  = None
+        self._mostrar_boas_vindas()
+        self._mostrar_login()
 
     # ── Logout ────────────────────────────────────────────────────────────────
     def _logout(self):
